@@ -6,10 +6,10 @@ import os
 load_dotenv()
 
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
-LANGFLOW_ID = ""
-FLOW_ID = ""
-APPLICATION_TOKEN = os.environ.get("APP_TOKEN")
-ENDPOINT = "customer" # The endpoint name of the flow
+LANGFLOW_ID = os.environ.get("LANGFLOW_ID")
+FLOW_ID = os.environ.get("FLOW_ID")
+APPLICATION_TOKEN = os.environ.get("APPLICATION_TOKEN")
+ENDPOINT = "participator" # The endpoint name of the flow
 
 
 def run_flow(message: str) -> dict:
@@ -23,10 +23,24 @@ def run_flow(message: str) -> dict:
 
     headers = {"Authorization": "Bearer " + APPLICATION_TOKEN, "Content-Type": "application/json"}
     response = requests.post(api_url, json=payload, headers=headers)
+    print(response)
     return response.json()
 
 def main():
     st.title("Chat Interface")
+    
+    # Add secret key authentication
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
+        
+    if not st.session_state.authenticated:
+        secret_key = st.text_input("Enter secret key:", type="password")
+        if secret_key == "512":
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Please enter the correct secret key to access the chat")
+            return
     
     message = st.text_area("Message", placeholder="Ask something...")
     
